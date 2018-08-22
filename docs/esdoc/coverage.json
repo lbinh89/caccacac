@@ -1,0 +1,37 @@
+{
+  "coverage": "100%",
+  "expectCount": 15,
+  "actualCount": 15,
+  "files": {
+    "src/app.js": {
+      "expectCount": 1,
+      "actualCount": 1,
+      "undocumentLines": []
+    },
+    "src/config/config.js": {
+      "expectCount": 1,
+      "actualCount": 1,
+      "undocumentLines": []
+    },
+    "src/controllers/Controller.js": {
+      "expectCount": 5,
+      "actualCount": 5,
+      "undocumentLines": []
+    },
+    "src/db.js": {
+      "expectCount": 1,
+      "actualCount": 1,
+      "undocumentLines": []
+    },
+    "src/models/Mail.js": {
+      "expectCount": 5,
+      "actualCount": 5,
+      "undocumentLines": []
+    },
+    "src/routes/route.js": {
+      "expectCount": 2,
+      "actualCount": 2,
+      "undocumentLines": []
+    }
+  }
+}

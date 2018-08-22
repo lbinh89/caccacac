@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../../">
+  <title data-ice="title">test/models/mail/routeTest.js | proto-auto-reply</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  <a href="test.html" data-ice="testLink">Test</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#config">config</a><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-config">config</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#controllers">controllers</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/controllers/Controller.js~Controller.html">Controller</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#models">models</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/models/Mail.js~Mail.html">Mail</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#routes">routes</a><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-index">index</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">test/models/mail/routeTest.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/* eslint-disable no-unused-vars */
+/* eslint-env mocha */
+import chai from &quot;chai&quot;;
+import express from &quot;express&quot;;
+import { describe } from &quot;mocha&quot;;
+import * as jsonServer from &quot;json-server&quot;;
+import fixtures from &quot;./../../fixtures&quot;;
+import mail from &quot;./../../../src/models/mail/index&quot;;
+
+const should = chai.should();
+const server = express();
+
+describe(&quot;test for model/mail/index&quot;, () =&gt; {
+  before(() =&gt; {
+    server.use(&quot;/db&quot;, jsonServer.router(&quot;./mock/config/mockDb.json&quot;));
+    server.listen(fixtures.port.mailIndexTestJsonServer);
+  });
+  describe(&quot;positive test&quot;, () =&gt; {
+    it(&quot;get mail list without id returns 200&quot;, done =&gt; {
+      const values = fixtures.testValues.mailIndexTest.fetchAll;
+      mail.fetchRegisteredMailList(values, result =&gt; {
+        result.should.be.an(&quot;object&quot;);
+        should.exist(result.text);
+        result.text.should.be.an(&quot;array&quot;);
+        should.exist(result.status);
+        result.status.should.equal(fixtures.errors.number.ok);
+        done();
+      });
+    });
+    it(&quot;get mail list with id returns 200&quot;, done =&gt; {
+      const values = fixtures.testValues.mailIndexTest.fetchById;
+      mail.fetchRegisteredMailList(values, result =&gt; {
+        result.should.be.an(&quot;object&quot;);
+        should.exist(result.text);
+        result.text.should.be.an(&quot;array&quot;);
+        should.exist(result.status);
+        result.status.should.equal(fixtures.errors.number.ok);
+        done();
+      });
+    });
+    it(&quot;register mail with id=888 to list returns 201&quot;, done =&gt; {
+      const values = fixtures.testValues.mailIndexTest.registerMail;
+      mail.registerMailToList(values, result =&gt; {
+        result.should.be.an(&quot;object&quot;);
+        should.exist(result.text);
+        result.text.should.be.an(&quot;object&quot;);
+        should.exist(result.status);
+        result.status.should.equal(fixtures.errors.number.created);
+        done();
+      });
+    });
+    it(&quot;remove mail with id=888 from list returns 204&quot;, done =&gt; {
+      const values = fixtures.testValues.mailIndexTest.removeMail;
+      mail.removeMailFromList(values, result =&gt; {
+        result.should.be.an(&quot;object&quot;);
+        should.exist(result.text);
+        result.text.should.be.an(&quot;object&quot;);
+        should.exist(result.status);
+        result.status.should.equal(fixtures.errors.number.deleted);
+        done();
+      });
+    });
+  });
+  describe(&quot;negative test&quot;, () =&gt; {
+    it(&quot;get mail list from non-existent DB returns 500&quot;, done =&gt; {
+      const values = fixtures.testValues.mailIndexTest.errFetchMail;
+      mail.fetchRegisteredMailList(values, result =&gt; {
+        result.should.be.an(&quot;object&quot;);
+        should.exist(result.text);
+        result.text.should.be.an(&quot;string&quot;);
+        should.exist(result.status);
+        result.status.should.not.equal(fixtures.errors.number.ok);
+        done();
+      });
+    });
+    it(&quot;register mail list from non-existent DB returns 500&quot;, done =&gt; {
+      const values = fixtures.testValues.mailIndexTest.errRegisterMail;
+      mail.registerMailToList(values, result =&gt; {
+        result.should.be.an(&quot;object&quot;);
+        should.exist(result.text);
+        result.text.should.be.an(&quot;string&quot;);
+        should.exist(result.status);
+        result.status.should.not.equal(fixtures.errors.number.ok);
+        done();
+      });
+    });
+    it(&quot;remove mail with non-exist id from DB returns 404&quot;, done =&gt; {
+      const values = fixtures.testValues.mailIndexTest.errIdRemoveMail;
+      mail.removeMailFromList(values, result =&gt; {
+        result.should.be.an(&quot;object&quot;);
+        should.exist(result.text);
+        result.text.should.be.an(&quot;string&quot;);
+        should.exist(result.status);
+        result.status.should.not.equal(fixtures.errors.number.deleted);
+        result.status.should.equal(fixtures.errors.number.notFound);
+        done();
+      });
+    });
+    it(&quot;remove mail with id from  non-existent DB returns 500&quot;, done =&gt; {
+      const values = fixtures.testValues.mailIndexTest.errIpRemoveMail;
+      mail.removeMailFromList(values, result =&gt; {
+        result.should.be.an(&quot;object&quot;);
+        should.exist(result.text);
+        result.text.should.be.an(&quot;string&quot;);
+        should.exist(result.status);
+        result.status.should.not.equal(fixtures.errors.number.deleted);
+        result.status.should.equal(fixtures.errors.number.notFound);
+        done();
+      });
+    });
+  });
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

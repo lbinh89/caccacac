@@ -1,0 +1,27 @@
+{
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "overrides": [
+    {
+      "files": "*.json",
+      "options": {
+        "parser": "json",
+        "tabWidth": 2
+      }
+    },
+    {
+      "files": ".prettierrc",
+      "options": {
+        "parser": "json",
+        "tabWidth": 2
+      }
+    },
+    {
+      "files": "bin/www",
+      "options": {
+        "parser": "babylon",
+        "tabWidth": 2
+      }
+    }
+  ]
+}

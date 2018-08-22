@@ -1,0 +1,10 @@
+---
+applications:
+  - name: proto-auto-reply
+    memory: 2048MB
+    buildpack: nodejs_buildpack
+    instance: 1
+    env:
+      NODE_ENV: development
+      CF_LOGGER_OUTPUT_LEVEL: debug
+      TZ: Asia/Tokyo

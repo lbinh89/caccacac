@@ -1,0 +1,27 @@
+jobs:
+  main:
+    requires: [ ~pr, ~commit ]
+    template: pcf/test-nodejs
+  pcf-deploy:
+    requires: [ main ]
+    template: pcf/deploy-nodejs
+  acceptance-test:
+    image: node:8
+    requires: [ pcf-deploy ]
+    steps:
+      - run_acceptance_test: |
+          npm run test
+  switch-route:
+    requires: [ pcf-deploy ]
+    template: pcf/switch-index
+
+shared:
+  environment:
+    CF_CLUSTER: dev01.ssk.cfm.yahoo.co.jp
+    CF_ORG: <org>
+    CF_SPACE: <space>
+    NODEJS_IMAGE_TAG: 8-prod # PCFで利用するnodeのバージョンを指定する
+    CF_MANIFEST_FILE: manifest-dev.yml
+  secrets:
+    - CF_USER
+    - CF_PASS

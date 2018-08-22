@@ -1,0 +1,86 @@
+{
+  "name": "proto-auto-reply",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "build": "npm-run-all build:*",
+    "build:es6": "./node_modules/.bin/webpack --config webpack.config.js",
+    "esdoc": "./node_modules/.bin/esdoc && open ./docs/esdoc/index.html",
+    "apidoc": "./node_modules/aglio/bin/aglio.js -i src/specification/ml-management-rest-api/index.md -o docs/speficication/ml-management-rest-api/index.html",
+    "live:apidoc": "./node_modules/aglio/bin/aglio.js -i src/specification/ml-management-rest-api/index.md -s",
+    "test": "node_modules/.bin/nyc --report-dir=./test/report/coverage npm run test:cmd",
+    "test:cmd": "XUNIT_FILE=./test/report/test/xunit.xml CF_LOGGER_OUTPUT_LEVEL=warning NODE_ENV=test ./node_modules/.bin/mocha ./test/src --timeout 10000 --recursive --require babel-core/register --require babel-polyfill --exit --reporter list || exit 0"
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.js"
+    ],
+    "exclude": [],
+    "extension": [
+      ".js"
+    ],
+    "reporter": [
+      "text",
+      "lcov"
+    ],
+    "all": true
+  },
+  "engines": {
+    "node": "8.x"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-runtime": "^6.26.0",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "express": "~4.16.0",
+    "http-errors": "^1.6.3",
+    "json-server": "^0.12.2",
+    "npm-run-all": "^4.1.3",
+    "path": "^0.12.7",
+    "qs": "^6.5.2",
+    "superagent": "^3.8.3"
+  },
+  "devDependencies": {
+    "aglio": "^2.3.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.3",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-preset-stage-1": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "chai": "^4.1.2",
+    "esdoc": "^1.1.0",
+    "esdoc-standard-plugin": "^1.0.0",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-mocha": "^5.1.0",
+    "eslint-plugin-prettier": "^2.6.0",
+    "eslint-plugin-react": "^7.9.1",
+    "glob": "^7.1.2",
+    "gulp": "^3.9.1",
+    "lodash": "^4.17.10",
+    "mocha": "^5.2.0",
+    "mocky": "^0.1.11",
+    "nock": "^9.4.3",
+    "nyc": "^12.0.2",
+    "prettier": "^1.12.1",
+    "prettier-eslint": "^8.8.1",
+    "prettier-eslint-cli": "^4.7.1",
+    "should": "^13.2.3",
+    "sinon": "^6.1.3",
+    "supertest": "^3.1.0",
+    "webpack": "^4.9.1",
+    "webpack-cli": "^2.1.4",
+    "webpack-hot-middleware": "^2.22.2",
+    "webpack-livereload-plugin": "^2.1.1",
+    "webpack-node-externals": "^1.7.2",
+    "xunit-file": "^1.0.0"
+  }
+}
