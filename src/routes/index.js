@@ -31,4 +31,16 @@ index.get('/list/:id', (req, res) => {
   return controller.fetchMailList(req, res);
 });
 
+index.post('/list', (req, res) => {
+  req.body.map(val => {
+    req.checkBody(val.name).not().isString().withMessage('Do not empty name for mail list');
+})
+
+
+const errors = req.validationErrors();
+
+console.log(errors)
+  return controller.registerMailToListController(req, res);
+});
+
 export default index;

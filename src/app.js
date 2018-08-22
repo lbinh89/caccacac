@@ -3,6 +3,7 @@
 import express from 'express';
 import createError from 'http-errors';
 import CookieParser from 'cookie-parser';
+import ExpressValidator from 'express-validator';
 import config from './config/config';
 import route from './routes/index';
 
@@ -16,6 +17,9 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json({ limit: '10mb' }));
 app.use(CookieParser());
+
+/** ADD EXPRESS VALIDATOR MIDDLEWARE **/
+app.use(ExpressValidator());
 
 /** ERROR HANDLING **/
 if (process.env.NODE_ENV === 'development') {

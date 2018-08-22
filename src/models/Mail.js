@@ -47,4 +47,26 @@ export default class Mail {
       return err;
     }
   }
+
+       /**
+   * this is method of fetch mail list in Mail Class
+   * @param {Object} values
+   * @returns {Promise<any>} response - response from json-server
+   */
+  async registerMailToListModel(values) {
+    /**
+    * create self variable
+    * @type {Mail}
+    */
+  const self = this;
+  /**
+    * this is id from value object
+    * @type {String}
+    */
+
+  const requestUrl = `${self.url}${self.path}`;
+  const responseC = await request.post(requestUrl).send(values);
+
+  return responseC;
+  }
 }

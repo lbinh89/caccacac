@@ -42,4 +42,40 @@ export default class Controller {
       : config.errors.message.getMailList;
     return res.status(statusCode).json(responseText);
   }
+
+    /**
+   * this is registerMailToListController method
+   * call registerMailToListModel from Mail model
+   * @param {Object} req - request Object
+   * @param {Object} res - response
+   * @returns {Promise<*>}
+   */
+  async registerMailToListController(req, res) {
+    /**
+    * @param {Object} values
+    * @returns {JSON}
+    */
+ 
+    this.values = !req.body ? "" : req.body;
+ 
+    let responseData = {};
+ 
+    if(this.values.length < 0 || this.values.length > 100) {
+      responseData.status = config.httpStatus.BAD_REQUEST.status;
+      responseData.code = errorString.codeOutOfRange;
+      responseData.message = errorString.messageOutOfRange;
+      return res.status(responseData.status).json(responseData)
+    }else {
+      
+    }
+   }
+ 
+   /**
+    * this is jsonValidation method
+    * @param {String} values - values Object
+    * @returns {Object}
+    */
+   jsonValidation(values) {
+     return JSON.parse(values);
+   }
 }

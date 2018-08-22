@@ -8,6 +8,14 @@ const config = {
     app: 8080,
     jsonServer: 3333,
   },
+  httpStatus: {
+    OK: {
+      status: 200,
+    },
+    BAD_REQUEST: {
+      status: 400,
+    }
+  },
   errors: {
     errorCode: {
       permissionDenied: 'EACCES',
