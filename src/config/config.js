@@ -12,8 +12,21 @@ const config = {
     OK: {
       status: 200,
     },
-    BAD_REQUEST: {
+    FORMAT_INVALID: {
       status: 400,
+      code: "ERR_ML_FORMAT_INVALID"
+    },
+    OUT_OF_RANGE: {
+      status: 400,
+      code: "ERR_MAIL_NUMBER_OUTOFRANGE"
+    },
+    IS_EXIST: {
+      status: 400,
+      code: "ERR_ML_ALREADY_EXIST"
+    },
+    INTERNAL_SERVER: {
+      status: 500,
+      code: "ERR_ML_INTERNAL_SERVER"
     }
   },
   errors: {
