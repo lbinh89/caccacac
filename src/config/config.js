@@ -5,8 +5,8 @@
  */
 const config = {
   port: {
-    app: 8080,
-    jsonServer: 3333,
+    app: 8000,
+    jsonServer: 3003,
   },
   httpStatus: {
     OK: {
@@ -21,7 +21,7 @@ const config = {
       code: "ERR_MAIL_NUMBER_OUTOFRANGE"
     },
     IS_EXIST: {
-      status: 400,
+      status: 409,
       code: "ERR_ML_ALREADY_EXIST"
     },
     INTERNAL_SERVER: {

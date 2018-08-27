@@ -7,6 +7,27 @@ const fixtures = {
     mailIndexTestJsonServer: 3006,
     mailClassTestJsonServer: 3007,
   },
+  httpStatus: {
+    OK: {
+      status: 200,
+    },
+    FORMAT_INVALID: {
+      status: 400,
+      code: "ERR_ML_FORMAT_INVALID"
+    },
+    OUT_OF_RANGE: {
+      status: 400,
+      code: "ERR_MAIL_NUMBER_OUTOFRANGE"
+    },
+    IS_EXIST: {
+      status: 409,
+      code: "ERR_ML_ALREADY_EXIST"
+    },
+    INTERNAL_SERVER: {
+      status: 500,
+      code: "ERR_ML_INTERNAL_SERVER"
+    }
+  },
   errors: {
     status: {
       ok: 200,
@@ -33,6 +54,17 @@ const fixtures = {
     stubReturnValue: {
       status: 200,
       body: '{"text":"Dummy Test"}',
+    },
+    stubAddressIncorrect: {
+      status: 400,
+      body: `
+        {
+          "inquiryId": "4f22c2fa-3dab-4958-95f4-6a0e014b439c",
+          "error": {
+              "code": "ERR_ML_FORMAT_INVALID",
+              "message": "{address}がありませんでした。{address}を入力してください。"
+          }
+      }`,
     },
   },
 };
