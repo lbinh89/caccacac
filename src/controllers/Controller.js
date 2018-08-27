@@ -56,7 +56,7 @@ export default class Controller {
  */
   async registerMailToListController(req, res) {
     //Logic for validation data input
-    if (this.jsonValidation() === false) {
+    if (this.jsonValidation(req.body) === false) {
       return res.status(config.httpStatus.INTERNAL_SERVER.status)
         .json({
           inquiryId: uuidv4(),
@@ -187,12 +187,14 @@ export default class Controller {
    * @param {String} values - string
    * @returns {boolean}
    */
-  jsonValidation() {
-    const data = '[{"name":"name3","address":"address3"},{"name":"name4","address":"address4"}]';
-    console.log(typeof data)
+  jsonValidation(data) {
     try{
-        JSON.parse(data);
-    }catch(e){
+      if(typeof data === "string"){
+          JSON.parse(data);
+      }else {
+          JSON.parse(JSON.stringify(data));
+      }
+    }catch(e) {
       return false;
     }
     return true;

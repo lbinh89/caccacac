@@ -55,6 +55,20 @@ describe('test for controllers/Controller', () => {
       const actual = controller.jsonValidation(correctJsonFormat);
       assert.deepEqual(actual, except);
     });
+
+    it('test for jsonValidation() correct return true', () => {
+        const incorrectJsonFormat = [{"name":"Yahoo! users mailing list","address":"yahoo-users@ml.your.domain.jp"},{"name":"Yahoo! admin. ml","address":"yahoo-admin@ml.your.domain.jp"}];
+        const except = true;
+        const actual = controller.jsonValidation(incorrectJsonFormat);
+        assert.deepEqual(actual, except);
+    });
+
+    it('test for jsonValidation() correct return true', () => {
+        const incorrectJsonFormat = [];
+        const except = true;
+        const actual = controller.jsonValidation(incorrectJsonFormat);
+        assert.deepEqual(actual, except);
+    });
   });
   describe('negative test', () => {
 
