@@ -12,6 +12,9 @@ const config = {
     OK: {
       status: 200,
     },
+    CREATED: {
+        status: 201,
+    },
     FORMAT_INVALID: {
       status: 400,
       code: "ERR_ML_FORMAT_INVALID"
