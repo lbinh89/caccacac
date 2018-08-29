@@ -81,7 +81,7 @@ export default class Controller {
     const dataInput = !req.body ? '' : req.body;
 
     // check total mail
-    if (dataInput.length < 0 || dataInput.length > 100) {
+    if (dataInput.length < 1 || dataInput.length > 100) {
       return res.status(config.httpStatus.OUT_OF_RANGE.status).json({
         inquiryId: uuidv4(),
         error: {
@@ -241,13 +241,17 @@ export default class Controller {
 
       for (const property in errors) {
         if (errors[property].msg == msgNameRequire) {
-          const index = parseInt(errors[property].param.substr(5, 1)) + 1; // get index of error from errors list
+          const beginTrim = parseInt(errors[property].param.indexOf("["));
+          const endTrim = parseInt(errors[property].param.indexOf("]"));
+          const index = parseInt(errors[property].param.substr(beginTrim + 1, endTrim - beginTrim - 1)) + 1; // get index of error from errors list
           outputMsgRequire = `${outputMsgRequire + nameLetter + index}, `;
         }
       }
       for (const property in errors) {
         if (errors[property].msg == msgAddressRequire) {
-          const index = parseInt(errors[property].param.substr(5, 1)) + 1; // get index of error from errors list
+            const beginTrim = parseInt(errors[property].param.indexOf("["));
+            const endTrim = parseInt(errors[property].param.indexOf("]"));
+            const index = parseInt(errors[property].param.substr(beginTrim + 1, endTrim - beginTrim - 1)) + 1;  // get index of error from errors list
           outputMsgRequire = `${outputMsgRequire + addressLetter + index}, `;
         }
       }
@@ -315,7 +319,9 @@ export default class Controller {
       // validation name
       for (const property in errorsMerge) {
         if (errorsMerge[property].msg == msgNameFormat) {
-          const index = parseInt(errorsMerge[property].param.substr(5, 1)) + 1; // get index of error from errors list
+            const beginTrim = parseInt(errors[property].param.indexOf("["));
+            const endTrim = parseInt(errors[property].param.indexOf("]"));
+            const index = parseInt(errors[property].param.substr(beginTrim + 1, endTrim - beginTrim - 1)) + 1; // get index of error from errors list
           outputMsgFormat = `${outputMsgFormat + nameLetter + index}: ${
             errorsMerge[property].value
           }, `;
@@ -324,7 +330,9 @@ export default class Controller {
       // validation address
       for (const property in errorsMerge) {
         if (errorsMerge[property].msg == msgAddressFormat) {
-          const index = parseInt(errorsMerge[property].param.substr(5, 1)) + 1;
+            const beginTrim = parseInt(errors[property].param.indexOf("["));
+            const endTrim = parseInt(errors[property].param.indexOf("]"));
+            const index = parseInt(errors[property].param.substr(beginTrim + 1, endTrim - beginTrim - 1)) + 1; // get index of error from errors list
           outputMsgFormat = `${outputMsgFormat + addressLetter + index}: ${
             errorsMerge[property].value
           }, `;

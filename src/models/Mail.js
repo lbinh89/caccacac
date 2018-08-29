@@ -1,5 +1,4 @@
 import * as request from 'superagent';
-import { CFLogger, CFLogLevel } from '@yj-intl/node-cf-logger';
 
 /**
  * this is Mail Class
@@ -27,7 +26,6 @@ export default class Mail {
    * @returns {Promise<any>} response - response from json-server
    */
   async fetchRegisteredMailList(values) {
-    CFLogger.log(CFLogLevel.INFO, `start fetchRegisteredMailList`);
     try {
       /**
        * create self variable
@@ -43,17 +41,8 @@ export default class Mail {
         ? `${self.url}${self.path}`
         : `${self.url}${self.path}/${id}`;
       const response = await request.get(requestUrl);
-      CFLogger.log(CFLogLevel.DEBUG, `fetchRegisteredMailList.response : `);
-      CFLogger.log(CFLogLevel.DEBUG, response);
-      CFLogger.log(CFLogLevel.INFO, `finish fetchRegisteredMailList`);
       return response;
     } catch (err) {
-      CFLogger.log(CFLogLevel.CRITICAL, `fetchRegisteredMailList.err :`);
-      CFLogger.log(CFLogLevel.CRITICAL, err);
-      CFLogger.log(
-        CFLogLevel.INFO,
-        `occurred error in fetchRegisteredMailList`
-      );
       return err;
     }
   }
