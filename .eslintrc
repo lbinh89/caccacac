@@ -1,16 +1,16 @@
-{
-  "env": {
-    "node": true,
-    "es6": true
-  },
-  "ecmaFeatures": {
-    "modules": true
-  },
-  "extends": ["airbnb", "prettier"],
-  "plugins": ["prettier", "mocha"],
-  "rules": {
-    "import/first": [ "error", "DISABLE-absolute-first" ],
-    "prettier/prettier": "error",
-    "mocha/no-exclusive-tests": "error"
-  }
-}
+// {
+//   "env": {
+//     "node": true,
+//     "es6": true
+//   },
+//   "ecmaFeatures": {
+//     "modules": true
+//   },
+//   "extends": ["airbnb", "prettier"],
+//   "plugins": ["prettier", "mocha"],
+//   "rules": {
+//     "import/first": [ "error", "DISABLE-absolute-first" ],
+//     "prettier/prettier": "error",
+//     "mocha/no-exclusive-tests": "error"
+//   }
+// }

@@ -28,7 +28,7 @@ export default class Controller {
     this.values = {};
   }
 
-  /**
+ /**
    * this is fetchMailList method
    * call fetchRegisteredMailList from Mail model
    * @param {Object} req - request Object
@@ -56,32 +56,22 @@ export default class Controller {
    */
   async registerMailToListController(req, res) {
     // check format JSON input
-    if (this.jsonValidation(req.body) === false) {
+    const jsonParamsResult = Controller.isJsonValidation(req.body);
+    if (jsonParamsResult !== '') {
       return res.status(config.httpStatus.INTERNAL_SERVER.status).json({
         inquiryId: uuidv4(),
         error: {
           code: config.httpStatus.INTERNAL_SERVER.code,
-          message: errorsMessage.InternalServer,
-        },
-      });
-    }
-
-    // check format data is array of object and property must have name, address
-    if (this.formatDataValid(req.body) === false) {
-      return res.status(config.httpStatus.INTERNAL_SERVER.status).json({
-        inquiryId: uuidv4(),
-        error: {
-          code: config.httpStatus.INTERNAL_SERVER.code,
-          message: errorsMessage.InternalServer,
+          message: jsonParamsResult,
         },
       });
     }
 
     // get data input
-    const dataInput = !req.body ? '' : req.body;
+    const data = req.body;
 
     // check total mail
-    if (dataInput.length < 1 || dataInput.length > 100) {
+    if (data.length < 1 || data.length > 100) {
       return res.status(config.httpStatus.OUT_OF_RANGE.status).json({
         inquiryId: uuidv4(),
         error: {
@@ -91,18 +81,47 @@ export default class Controller {
       });
     }
 
+    // make type object of body request folow rule of express validator
+    const objectData = { data };
+    req.body = objectData;
+
     // check require name, address
-    const checkRequired = await this.requireParamsValidation(
-      req,
-      res,
-      dataInput
-    );
+    const requireParamsResult = await this.isRequireParamsValidation(req);
+    if (requireParamsResult !== '') {
+      return res.status(config.httpStatus.FORMAT_INVALID.status).json({
+        inquiryId: uuidv4(),
+        error: {
+          code: config.httpStatus.FORMAT_INVALID.code,
+          message: requireParamsResult,
+        },
+      });
+    }
 
     // check format name, address
-    const checkFormat = await this.formatParamsValidation(req, res, dataInput);
+    const formatParamsResult = await this.isFormatParamsValidation(req);
+    if (formatParamsResult !== '') {
+      return res.status(config.httpStatus.FORMAT_INVALID.status).json({
+        inquiryId: uuidv4(),
+        error: {
+          code: config.httpStatus.FORMAT_INVALID.code,
+          message: formatParamsResult,
+        },
+      });
+    }
 
     // check mail exists
-    const checkExists = await this.checkInputMailExists(req, res, dataInput);
+    const existsParamsMailAddressResult = await this.isExistsParamsMailAddressValidation(
+      data
+    );
+    if (existsParamsMailAddressResult !== '') {
+      return res.status(config.httpStatus.IS_EXIST.status).json({
+        inquiryId: uuidv4(),
+        error: {
+          code: config.httpStatus.IS_EXIST.code,
+          message: existsParamsMailAddressResult,
+        },
+      });
+    }
 
     try {
       // get mail list form model
@@ -111,7 +130,7 @@ export default class Controller {
 
       // check mail is exists in model
       const listMailExists = [];
-      dataInput.map(mailInput => {
+      data.map(mailInput => {
         listMailModel.body.map(mailModel => {
           // check mail is exist in model
           if (mailInput.address === mailModel.address) {
@@ -127,10 +146,11 @@ export default class Controller {
         let outputMsgExists = errorsMessage.AlreadyExist;
 
         listMailExists.map(mail => {
-          outputMsgExists = `${outputMsgExists + mail}, `;
+          // concatenation string for list mail exists in database
+          outputMsgExists += mail + ', ';
         });
 
-        outputMsgExists = outputMsgExists.slice(0, -2);
+        outputMsgExists.slice(0, -2);
         return res.status(config.httpStatus.IS_EXIST.status).json({
           inquiryId: uuidv4(),
           error: {
@@ -139,13 +159,13 @@ export default class Controller {
           },
         });
       }
-      // send dataInput to registerMailToListModel
+      // send data to registerMailToListModel
       if (
-        checkRequired === true &&
-        checkFormat === true &&
-        checkExists === true
+        requireParamsResult !== '' &&
+        formatParamsResult !== '' &&
+        existsParamsMailAddressResult !== ''
       ) {
-        const dataRegister = await this.mail.registerMailToListModel(dataInput);
+        const dataRegister = await this.mail.registerMailToListModel(data);
         // check register success
         if (dataRegister.length > 0) {
           return res
@@ -165,11 +185,11 @@ export default class Controller {
   }
 
   /**
-   * this is jsonValidation method
+   * this is isJsonValidation method
    * @param {String} values - string
    * @returns {boolean}
    */
-  jsonValidation(data) {
+  static isJsonValidation(data) {
     try {
       if (typeof data === 'string') {
         JSON.parse(data);
@@ -177,61 +197,53 @@ export default class Controller {
         JSON.parse(JSON.stringify(data));
       }
     } catch (e) {
-      return false;
+      return e.toString();
     }
-    return true;
+    return '';
   }
 
   /**
-   * this is formatDataValid method
-   * @param {array} values - array
-   * @returns {boolean}
+   * this is getIndexFromErrorsList method
+   * @param {Object} values - object
+   * @returns {Object}
    */
-  formatDataValid(data) {
-    if (Array.isArray(data) === true) {
-      let checkPrototype = true;
-      data.find(index => {
-        // check property must be name or address
-        if (
-          !index.hasOwnProperty('name') === true ||
-          !index.hasOwnProperty('address') === true
-        ) {
-          checkPrototype = false;
-        }
-      });
-      return checkPrototype;
-    }
-    return false;
+  static getIndexFromErrorsList(error) {
+    const mailAddress = 'mail address';
+    const beginTrim = parseInt(error.param.indexOf('['), 10);
+    const endTrim = parseInt(error.param.indexOf(']'), 10);
+    const index =
+      parseInt(error.param.substr(beginTrim + 1, endTrim - beginTrim - 1), 10) +
+      1; // get index of error from errors list
+    error.index = index;
+    error.type =
+      error.param.substr(error.param.indexOf('.') + 1) === 'address' // replace string "address" to "mail address"
+        ? mailAddress
+        : error.param.substr(error.param.indexOf('.') + 1);
+    return error;
   }
 
   /**
-   * this is requireParamsValidation method
+   * this is isRequireParamsValidation method
    * @param {object} values - object
-   * @returns {object}
+   * @returns {string}
    */
-  async requireParamsValidation(req, res, data) {
+  async isRequireParamsValidation(req) {
     const msgNameRequire = 'name-require';
     const msgAddressRequire = 'address-require';
-    const nameLetter = 'name';
-    const addressLetter = 'mail address';
-
-    // make type object of body request folow rule of express validator
-    const objectData = { data };
-    req.body = objectData;
 
     // check require name
     req
-      .checkBody('data.*.name')
+      .checkBody('data.*.name', msgNameRequire)
+      .trim()
       .not()
-      .isEmpty()
-      .withMessage(msgNameRequire);
+      .isEmpty();
 
     // check require address
     req
-      .checkBody('data.*.address')
+      .checkBody('data.*.address', msgAddressRequire)
+      .trim()
       .not()
-      .isEmpty()
-      .withMessage(msgAddressRequire);
+      .isEmpty();
 
     const errors = req.validationErrors();
 
@@ -239,52 +251,41 @@ export default class Controller {
       // message output
       let outputMsgRequire = errorsMessage.Require;
 
-      for (const property in errors) {
-        if (errors[property].msg == msgNameRequire) {
-          const beginTrim = parseInt(errors[property].param.indexOf("["));
-          const endTrim = parseInt(errors[property].param.indexOf("]"));
-          const index = parseInt(errors[property].param.substr(beginTrim + 1, endTrim - beginTrim - 1)) + 1; // get index of error from errors list
-          outputMsgRequire = `${outputMsgRequire + nameLetter + index}, `;
+      // change format data errors incluce prototype { index, type } to each error then  group data by { index }
+      const data = _.groupBy(
+        errors.map(error => {
+          return Controller.getIndexFromErrorsList(error);
+        }),
+        'index'
+      );
+
+      // loop object errors, inluce error exists by couple prototype { name, address }
+      for (let property in data) {
+        if (data[property].length > 0) {
+          outputMsgRequire +=
+            data[property]
+              .map(item => item.type + '' + item.index) // get { index, type } of error
+              .join(', ') + ', ';
         }
       }
-      for (const property in errors) {
-        if (errors[property].msg == msgAddressRequire) {
-            const beginTrim = parseInt(errors[property].param.indexOf("["));
-            const endTrim = parseInt(errors[property].param.indexOf("]"));
-            const index = parseInt(errors[property].param.substr(beginTrim + 1, endTrim - beginTrim - 1)) + 1;  // get index of error from errors list
-          outputMsgRequire = `${outputMsgRequire + addressLetter + index}, `;
-        }
-      }
+
       // check message output not null
       if (outputMsgRequire !== errorsMessage.Require) {
         // remove ", " from begin message
-        outputMsgRequire = outputMsgRequire.slice(0, -2);
-        return res.status(config.httpStatus.FORMAT_INVALID.status).json({
-          inquiryId: uuidv4(),
-          error: {
-            code: config.httpStatus.FORMAT_INVALID.code,
-            message: outputMsgRequire,
-          },
-        });
+        return outputMsgRequire.slice(0, -2);
       }
     }
-    return true;
+    return '';
   }
 
   /**
-   * this is formatParamsValidation method
+   * this is isFormatParamsValidation method
    * @param {object} values - object
-   * @returns {object}
+   * @returns {string}
    */
-  async formatParamsValidation(req, res, data) {
+  async isFormatParamsValidation(req) {
     const msgNameFormat = 'name-format';
     const msgAddressFormat = 'address-format';
-    const nameLetter = 'name';
-    const addressLetter = 'mail address';
-
-    // make type object of body request folow rule of express validator
-    const objectData = { data };
-    req.body = objectData;
 
     // check name format
     req
@@ -293,7 +294,7 @@ export default class Controller {
       .isString()
       .withMessage(msgNameFormat)
       .not()
-      .matches(/[$-/:-?{-~!"^_`\[\]!@#$%^&*(),.?":{}|<>]/) // check specical character
+      .matches(/[$/:?{~!"^`\[\]!@#$%^&*(),?"{}|<>]/) // check specical character
       .withMessage(msgNameFormat);
 
     // check address format
@@ -302,11 +303,11 @@ export default class Controller {
       .isEmail()
       .withMessage(msgAddressFormat)
       .trim()
-      .normalizeEmail()
-      .withMessage(msgAddressFormat)
       .isString()
       .withMessage(msgAddressFormat)
-      .matches(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+?\.[a-z]{2,}$/) // check japan character and specical character
+      .matches(
+        /^[-a-z0-9-_.}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/
+      ) // check japan character and specical character
       .withMessage(msgAddressFormat);
 
     const errors = req.validationErrors();
@@ -314,57 +315,55 @@ export default class Controller {
     if (errors.length > 0) {
       // message output
       let outputMsgFormat = errorsMessage.Format;
-      // Merge errors
-      const errorsMerge = _.uniqWith(errors, _.isEqual);
-      // validation name
-      for (const property in errorsMerge) {
-        if (errorsMerge[property].msg == msgNameFormat) {
-            const beginTrim = parseInt(errors[property].param.indexOf("["));
-            const endTrim = parseInt(errors[property].param.indexOf("]"));
-            const index = parseInt(errors[property].param.substr(beginTrim + 1, endTrim - beginTrim - 1)) + 1; // get index of error from errors list
-          outputMsgFormat = `${outputMsgFormat + nameLetter + index}: ${
-            errorsMerge[property].value
-          }, `;
+
+      // Merge errors and change format data errors incluce prototype { index, type } to each error then group data by { index }
+      const data = _.groupBy(
+        _.uniqWith(errors, _.isEqual).map(error => {
+          return Controller.getIndexFromErrorsList(error);
+        }),
+        'index'
+      );
+      // loop object errors, inluce error exists by couple prototype { name, address }
+      for (let property in data) {
+        if (data[property].length > 0) {
+          outputMsgFormat +=
+            data[property]
+              .map(
+                item =>
+                  item.type + // get { index, type } of error
+                  '' +
+                  item.index + // get { index, type } of error
+                  ': ' +
+                  (item.type.toString() !== 'name' // get value form data input
+                    ? req.body.data[item.index - 1].address.toString()
+                    : item.value)
+              ) // get type and location of error
+              .join(', ') + ', ';
         }
       }
-      // validation address
-      for (const property in errorsMerge) {
-        if (errorsMerge[property].msg == msgAddressFormat) {
-            const beginTrim = parseInt(errors[property].param.indexOf("["));
-            const endTrim = parseInt(errors[property].param.indexOf("]"));
-            const index = parseInt(errors[property].param.substr(beginTrim + 1, endTrim - beginTrim - 1)) + 1; // get index of error from errors list
-          outputMsgFormat = `${outputMsgFormat + addressLetter + index}: ${
-            errorsMerge[property].value
-          }, `;
-        }
-      }
+
       if (outputMsgFormat !== errorsMessage.Format) {
         // remove ", " at end message
-        outputMsgFormat = outputMsgFormat.slice(0, -2);
-        return res.status(config.httpStatus.FORMAT_INVALID.status).json({
-          inquiryId: uuidv4(),
-          error: {
-            code: config.httpStatus.FORMAT_INVALID.code,
-            message: outputMsgFormat,
-          },
-        });
+        return outputMsgFormat.slice(0, -2);
       }
     }
-    return true;
+    return '';
   }
 
   /**
-   * this is checkInputMailExists method
+   * this is isExistsParamsMailAddressValidation method for check exists mail address in input list
    * @param {array} values - array
-   * @returns {boolean}
+   * @returns {object||boolean}
    */
-  async checkInputMailExists(req, res, data) {
+  async isExistsParamsMailAddressValidation(data) {
     const listMail = [];
     const listMailExists = [];
     let outputMsgExists = errorsMessage.AlreadyExist;
 
-    for (const property in data) {
-      listMail.push(data[property].address);
+    for (let property in data) {
+      if (Object.prototype.hasOwnProperty.call(data[property], 'address')) {
+        listMail.push(data[property].address);
+      }
     }
 
     listMail.forEach((value, key) => {
@@ -379,17 +378,11 @@ export default class Controller {
 
     if (listMailExists.length > 0) {
       listMailExists.map(mail => {
-        outputMsgExists = `${outputMsgExists + mail}, `;
+        // concatenation string for list mail exists
+        outputMsgExists += mail + ', ';
       });
-      outputMsgExists = outputMsgExists.slice(0, -2);
-      return res.status(config.httpStatus.IS_EXIST.status).json({
-        inquiryId: uuidv4(),
-        error: {
-          code: config.httpStatus.IS_EXIST.code,
-          message: outputMsgExists,
-        },
-      });
+      return outputMsgExists.slice(0, -2);
     }
-    return true;
+    return '';
   }
 }

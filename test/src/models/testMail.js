@@ -11,6 +11,9 @@ const path = `/ml`;
 
 describe('test for models/Mail', () => {
   describe('positive test', () => {
+    afterEach(function() {
+      nock.cleanAll();
+    });
     it('test for constructor', function() {
       assert.strictEqual(
         fixtures.testValues.MailTest.constructor.url,
@@ -29,6 +32,32 @@ describe('test for models/Mail', () => {
 
       const response = await mail.fetchRegisteredMailList(values);
       assert.strictEqual('OK', response.text);
+    });
+    it('test for registerMailToListModel', async function() {
+      const values = [
+        {
+          name: 'yahoo-アドミン30',
+          address: 'yahoo-admin30@ml.your.domain.jp',
+        },
+        {
+          name: 'yahoo-アドミン31',
+          address: 'yahoo-admin31@ml.your.domain.jp',
+        },
+      ];
+
+      const responseValues = {
+        body: {
+          id: 1,
+          name: 'yahoo-アドミン30',
+          address: 'yahoo-admin30@ml.your.domain.jp',
+        },
+      };
+      nock(URL, { allowUnmocked: true })
+        .post(path, {})
+        .reply(201, responseValues);
+
+      const response = await mail.registerMailToListModel(values);
+      assert.isTrue(response.length === 2);
     });
   });
 });

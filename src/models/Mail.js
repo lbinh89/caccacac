@@ -59,29 +59,29 @@ export default class Mail {
        * @type {Mail}
        */
       const self = this;
-      /**
-       * this is id from value object
-       * @type {String}
-       */
-
       const requestUrl = `${self.url}${self.path}`;
+      // check Id largest number in database
+      const arrayId = [];
+      // latest response
+      const response = [];
       // get mail form database
       const databaseMailList = await request.get(requestUrl);
 
-      // check Id largest number in database
-      const arrayId = [];
-      for (const property in databaseMailList.body) {
+      for (let property in databaseMailList.body) {
         arrayId.push(databaseMailList.body[property].id);
       }
       let largestId = arrayId.sort((a, b) => b - a)[0];
-
       // generate Id begin form largestId
-      for (const object of values) {
+      for (let object of values) {
         largestId++;
         object.id = largestId;
-        await request.post(requestUrl).send(object);
+        const value = await request.post(requestUrl).send(object);
+        // check response success
+        if (typeof value === 'object' && value.body !== undefined) {
+          response.push(value.body);
+        }
       }
-      return values;
+      return response;
     } catch (err) {
       return err;
     }
